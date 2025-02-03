@@ -6,21 +6,61 @@
 
 using namespace std;
 
-
-const float CELL_SIZE = 20.0f;
 GLfloat angle = 0.0f;
-GLfloat center = 10.0f;
 int lives = 3;
-int score = 0;
-const float EXIT_X = 13 * CELL_SIZE;
-const float EXIT_Y = 15 * CELL_SIZE;
+int score = 200;
+
+int currentMap = 1;
+
+float CELL_SIZE = 50.0f;
+float CELL_SIZE2 = 25.0f;
+
+GLfloat center = 25.0f;
+GLfloat center2 = 12.5f;
+
+int ROWS = 15, COLS = 15;
 
 
 // Maze layout (1 = wall, 0 = empty space)
 
-const int ROWS = 30, COLS = 30;
-int maze[ROWS][COLS] = {
-    {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1},
+int maze[30][30] = {
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+};
+float EXIT_X1 = 13 * CELL_SIZE;
+float EXIT_Y1 = 15 * CELL_SIZE;
+
+
+int maze2[30][30] = {
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1},
     {0,0,0,1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1},
     {1,1,0,1,1,1,0,1,1,1,1,1,0,1,1,1,1,0,1,0,1,1,1,1,1,1,1,1,0,1},
     {1,1,0,0,0,0,0,0,0,0,0,1,0,1,1,1,0,0,1,0,1,0,0,0,0,0,0,1,0,1},
@@ -49,29 +89,14 @@ int maze[ROWS][COLS] = {
     {1,0,1,1,0,1,1,1,0,1,0,0,1,1,1,1,1,1,1,1,0,0,1,1,0,1,1,1,0,1},
     {1,0,1,1,0,1,1,1,0,1,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,1,0,0,0,1},
     {1,0,0,1,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,1},
-    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,0,0}
+    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,0,0}
 };
 
-/*
-const int ROWS = 15, COLS = 15;
-int maze[ROWS][COLS] = {
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0},
-    {1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
-    {1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1},
-    {1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1},
-    {1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1},
-    {1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1},
-    {1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1},
-    {1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1},
-    {1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
-    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1}
-};
-*/
+float EXIT_X2 = 29 * CELL_SIZE2;
+float EXIT_Y2 = 29 * CELL_SIZE2;
+
+
+
 
 // Wall Class
 class Wall {
@@ -218,6 +243,7 @@ public:
         glPopMatrix();
     }
 };
+
 // Function to draw a circle manually (border of the coin)
 void drawCircle(GLfloat radius, int segments) {
     glBegin(GL_LINE_LOOP); // Create a loop of lines for the circle
@@ -251,25 +277,24 @@ public:
     Coin(float x, float y) : x(x), y(y), collected(false) {}
 
     void draw() {
-        if (collected) return; // Don't draw if already collected
+        if (collected) return;
 
         glPushMatrix();
         glTranslatef(x + center, y + center, 0.0f);
-        //glRotatef(coinAngle, 0.0f, 1.0f, 0.0f);
 
         // Draw the black border
         glColor3f(0.0f, 0.0f, 0.0f);
-        drawCircle(CELL_SIZE / 5.5f, 50); // Fixed segment value
+        drawCircle(CELL_SIZE / 5.5f, 50);
 
         // Draw the gold coin
         glColor3f(1.0f, 0.84f, 0.0f);
-        drawFilledCircle(CELL_SIZE / 6.2f, 50); // Fixed segment value
+        drawFilledCircle(CELL_SIZE / 6.2f, 50);
 
         // Draw the inner circle
         glColor3f(0.8f, 0.6f, 0.0f);
         glPushMatrix();
         glTranslatef(0.0f, 0.0f, 0.01f);
-        drawFilledCircle(CELL_SIZE / 6, 50); // Fixed segment value
+        drawFilledCircle(CELL_SIZE / 6, 50);
         glPopMatrix();
 
         glPopMatrix(); // Restore transformation
@@ -336,7 +361,10 @@ public:
     void draw() {
         glPushMatrix();
         glTranslatef(x+center, y+center, 0.0f);
-        glScalef(0.9f, 0.9f, 0.0f); // Increase overall size
+        if(currentMap == 1)
+            glScalef(0.5f, 0.5f, 0.0f);
+        else
+            glScalef(0.9f, 0.9f, 0.0f);
 
         // Draw the head
         glColor3f(1.0f, 0.8f, 0.6f);
@@ -443,6 +471,8 @@ vector<Diamond> diamonds = {
 Player player(CELL_SIZE, CELL_SIZE);
 
 void initMaze() {
+    walls.clear();
+
     for (int i = 0; i < ROWS; i++) {
         for (int j = 0; j < COLS; j++) {
             if (maze[i][j] == 1) {
@@ -471,19 +501,100 @@ void displayLives() {
     }
 }
 
-void checkLevelCompletion() {
-    if (score >= 110 && player.x == EXIT_X && player.y == EXIT_Y) {
-        MessageBox(NULL,
-        "Congratulations!\n\n"
-        "You have successfully completed this level.\n"
-        "Click OK to Continue.",
-        "Level Completed",
-        MB_OK | MB_ICONASTERISK);
+void restartGame() {
+    player.x = CELL_SIZE;
+    player.y = CELL_SIZE;
+    score = 0;
+    lives = 3;
 
-        Sleep(3000); // Pause for 3 seconds (Windows only)
-        exit(0); // Close the game
+
+    for (auto &coin : coins) coin.collected = false;
+    for (auto &diamond : diamonds) diamond.collected = false;
+
+    initMaze();
+    glutPostRedisplay();
+}
+
+
+void checkLevelCompletion() {
+    float exitX = (currentMap == 1) ? EXIT_X1 : EXIT_X2;
+    float exitY = (currentMap == 1) ? EXIT_Y1 : EXIT_Y2;
+
+    if (player.x == exitX && player.y == exitY) {
+        if (currentMap == 1 && score >= 130) {
+            MessageBox(NULL, "Level Complete! \nProceeding to the next level...", "Level Completed", MB_OK | MB_ICONINFORMATION);
+
+            currentMap = 2;
+            CELL_SIZE = CELL_SIZE2;
+            center = center2;
+
+            for (int i = 0; i < 30; i++) {
+                for (int j = 0; j < 30; j++) {
+                    maze[i][j] = maze2[i][j];
+            }
+}
+            ROWS = 30;
+            COLS = 30;
+
+            vector<Fireball> fireballs2 = {
+                Fireball(8 * CELL_SIZE, 12 * CELL_SIZE),
+                Fireball(8 * CELL_SIZE, 27 * CELL_SIZE),
+                Fireball(21 * CELL_SIZE,13 * CELL_SIZE),
+                Fireball(19 * CELL_SIZE, 3 * CELL_SIZE),
+                Fireball(3 * CELL_SIZE, 13 * CELL_SIZE),
+                Fireball(26 * CELL_SIZE, 25 * CELL_SIZE),
+                Fireball(24 * CELL_SIZE, 15 * CELL_SIZE),
+                Fireball(12 * CELL_SIZE, 3 * CELL_SIZE)
+            };
+            vector<Sword> swords2 = {
+                Sword(21 * CELL_SIZE, 12 * CELL_SIZE),
+                Sword(21 * CELL_SIZE, 14 * CELL_SIZE),
+                Sword(3 * CELL_SIZE, 25 * CELL_SIZE),
+                Sword(17 * CELL_SIZE, 25 * CELL_SIZE),
+                Sword(10 * CELL_SIZE, 3 * CELL_SIZE),
+                Sword(16 * CELL_SIZE, 28 * CELL_SIZE),
+                Sword(1 * CELL_SIZE,10 * CELL_SIZE),
+                Sword(3 * CELL_SIZE, 7 * CELL_SIZE),
+                Sword(25 * CELL_SIZE, 3 * CELL_SIZE),
+                Sword(4 * CELL_SIZE, 20 * CELL_SIZE),
+                Sword(17 * CELL_SIZE, 19 * CELL_SIZE),
+                Sword(10 * CELL_SIZE, 9 * CELL_SIZE)
+            };
+
+            vector<Coin> coins2 = {
+                Coin(2 * CELL_SIZE, 3 * CELL_SIZE),
+                Coin(6 * CELL_SIZE, 7 * CELL_SIZE),
+                Coin(9 * CELL_SIZE, 11 * CELL_SIZE),
+                Coin(10 * CELL_SIZE, 3 * CELL_SIZE),
+                Coin(1 * CELL_SIZE, 15 * CELL_SIZE),
+                Coin(26 * CELL_SIZE, 25 * CELL_SIZE),
+                Coin(13 * CELL_SIZE, 21 * CELL_SIZE),
+                Coin(24 * CELL_SIZE, 27 * CELL_SIZE),
+                Coin(10 * CELL_SIZE, 9 * CELL_SIZE),
+                Coin(16 * CELL_SIZE, 13 * CELL_SIZE)
+            };
+
+            vector<Diamond> diamonds2 = {
+                Diamond(5 * CELL_SIZE, 13 * CELL_SIZE),
+                Diamond(20 * CELL_SIZE, 13 * CELL_SIZE),
+                Diamond(12 * CELL_SIZE, 28 * CELL_SIZE),
+            };
+
+            fireballs = fireballs2;
+            swords = swords2;
+            coins = coins2;
+            diamonds = diamonds2;
+
+            restartGame();
+            glutPostRedisplay();
+        }
+        else if (currentMap == 2 && score >= 300) {
+            MessageBox(NULL, "You completed all levels! ", "Game Finished", MB_OK | MB_ICONINFORMATION);
+            exit(0);
+        }
     }
 }
+
 
 void displayScore() {
     glColor3f(0.0f, 0.0f, 0.0f);
@@ -545,6 +656,7 @@ void update(int value) {
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
+
     for (auto &wall : walls) wall.draw();
     for (auto &fireball : fireballs) fireball.draw();
     for (auto &sword : swords) sword.draw();

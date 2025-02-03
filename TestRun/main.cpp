@@ -7,6 +7,7 @@ using namespace std;
 
 const int ROWS = 15, COLS = 15;
 const float CELL_SIZE = 40.0f;
+GLfloat angle = 0.0f;
 
 // Maze layout (1 = wall, 0 = empty space)
 int maze[ROWS][COLS] = {
@@ -41,32 +42,47 @@ public:
     }
 };
 
+
 // Fireball Class
 class Fireball {
 public:
     float x, y;
-    float speed = 5.0f;
+    float speed = 3.0f;
     bool movingUp = true;
     Fireball(float x, float y) : x(x), y(y) {}
+
     void move() {
-        if (movingUp) {
-            y += speed;
-            if (y >= ROWS * CELL_SIZE - CELL_SIZE) movingUp = false;
-        } else {
-            y -= speed;
-            if (y <= CELL_SIZE) movingUp = true;
-        }
+        y += movingUp ? speed : -speed;
+        if (y >= ROWS * CELL_SIZE - CELL_SIZE || y <= CELL_SIZE) movingUp = !movingUp;
     }
+
     void draw() {
-        glColor3f(1.0f, 0.0f, 0.0f);
-        glBegin(GL_QUADS);
-        glVertex2f(x, y);
-        glVertex2f(x + CELL_SIZE / 2, y);
-        glVertex2f(x + CELL_SIZE / 2, y + CELL_SIZE / 2);
-        glVertex2f(x, y + CELL_SIZE / 2);
+        glPushMatrix();
+        glTranslatef(x, y, 0.0f);
+        glRotatef(angle, 0.0f, 0.0f, 1.0f);
+
+        glLineWidth(1.0f);
+        glBegin(GL_LINE_LOOP);
+            glColor3f(1.0f, 0.5f, 0.0f);
+            glVertex2f(-CELL_SIZE / 5, -CELL_SIZE / 5);
+            glVertex2f(CELL_SIZE / 5, -CELL_SIZE / 5);
+            glVertex2f(CELL_SIZE / 5, CELL_SIZE / 5);
+            glVertex2f(-CELL_SIZE / 5, CELL_SIZE / 5);
         glEnd();
+
+        glBegin(GL_QUADS);
+            glColor3f(1.0f, 0.5f, 0.0f);
+            glVertex2f(-CELL_SIZE / 6, -CELL_SIZE / 6);
+            glVertex2f(CELL_SIZE / 6, -CELL_SIZE / 6);
+            glVertex2f(CELL_SIZE / 6, CELL_SIZE / 6);
+            glVertex2f(-CELL_SIZE / 6, CELL_SIZE / 6);
+        glEnd();
+
+        glPopMatrix();
+        angle += 25.0f;
     }
 };
+
 
 // Sword Class
 class Sword {

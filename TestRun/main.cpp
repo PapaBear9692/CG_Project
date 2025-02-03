@@ -8,6 +8,7 @@ using namespace std;
 const int ROWS = 15, COLS = 15;
 const float CELL_SIZE = 40.0f;
 GLfloat angle = 0.0f;
+GLfloat center = 20.0f;
 
 // Maze layout (1 = wall, 0 = empty space)
 int maze[ROWS][COLS] = {
@@ -68,7 +69,7 @@ public:
 
     void draw() {
         glPushMatrix();
-        glTranslatef(x, y, 0.0f);
+        glTranslatef(x+center, y, 0.0f);
         glRotatef(angle, 0.0f, 0.0f, 1.0f);
 
         glLineWidth(1.0f);
@@ -119,7 +120,7 @@ public:
 
     void draw() {
         glPushMatrix();
-        glTranslatef(x, y, 0.0f);
+        glTranslatef(x, y+center, 0.0f);
         glScalef(-1.0f, 1.0f, 1.0f); // Flip horizontally
 
         // Draw the blade
@@ -171,14 +172,63 @@ public:
     float x, y;
     Player(float startX, float startY) : x(startX), y(startY) {}
     void draw() {
-        glColor3f(1.0f, 0.0f, 0.0f);
+        glPushMatrix();
+        glTranslatef(x+center, y+center, 0.0f);
+        glScalef(0.5f, 0.5f, 0.0f); // Increase overall size
+
+        // Draw the head
+        glColor3f(1.0f, 0.8f, 0.6f);
         glBegin(GL_QUADS);
-        glVertex2f(x, y);
-        glVertex2f(x + CELL_SIZE / 2, y);
-        glVertex2f(x + CELL_SIZE / 2, y + CELL_SIZE / 2);
-        glVertex2f(x, y + CELL_SIZE / 2);
+        glVertex2f(-CELL_SIZE / 5, CELL_SIZE / 2);
+        glVertex2f(CELL_SIZE / 5, CELL_SIZE / 2);
+        glVertex2f(CELL_SIZE / 4, CELL_SIZE / 4);
+        glVertex2f(-CELL_SIZE / 4, CELL_SIZE / 4);
         glEnd();
+
+        // Draw the body
+        glColor3f(1.0f, 0.0f, 0.0f); // Change body color to red
+        glBegin(GL_QUADS);
+        glVertex2f(-CELL_SIZE / 3, CELL_SIZE / 4);
+        glVertex2f(CELL_SIZE / 3, CELL_SIZE / 4);
+        glVertex2f(CELL_SIZE / 3, -CELL_SIZE / 3);
+        glVertex2f(-CELL_SIZE / 3, -CELL_SIZE / 3);
+        glEnd();
+
+        // Draw the legs
+        glColor3f(0.0f, 0.0f, 0.0f);
+        glBegin(GL_QUADS);
+        glVertex2f(-CELL_SIZE / 6, -CELL_SIZE / 3);
+        glVertex2f(-CELL_SIZE / 12, -CELL_SIZE / 3);
+        glVertex2f(-CELL_SIZE / 12, -CELL_SIZE / 1.8);
+        glVertex2f(-CELL_SIZE / 6, -CELL_SIZE / 1.8);
+        glEnd();
+
+        glBegin(GL_QUADS);
+        glVertex2f(CELL_SIZE / 12, -CELL_SIZE / 3);
+        glVertex2f(CELL_SIZE / 6, -CELL_SIZE / 3);
+        glVertex2f(CELL_SIZE / 6, -CELL_SIZE / 1.8);
+        glVertex2f(CELL_SIZE / 12, -CELL_SIZE / 1.8);
+        glEnd();
+
+        // Draw the arms
+        glColor3f(1.0f, 0.8f, 0.6f);
+        glBegin(GL_QUADS);
+        glVertex2f(-CELL_SIZE / 3, CELL_SIZE / 4);
+        glVertex2f(-CELL_SIZE / 2.2, CELL_SIZE / 4);
+        glVertex2f(-CELL_SIZE / 2.2, -CELL_SIZE / 8);
+        glVertex2f(-CELL_SIZE / 3, -CELL_SIZE / 8);
+        glEnd();
+
+        glBegin(GL_QUADS);
+        glVertex2f(CELL_SIZE / 3, CELL_SIZE / 4);
+        glVertex2f(CELL_SIZE / 2.2, CELL_SIZE / 4);
+        glVertex2f(CELL_SIZE / 2.2, -CELL_SIZE / 8);
+        glVertex2f(CELL_SIZE / 3, -CELL_SIZE / 8);
+        glEnd();
+
+        glPopMatrix();
     }
+
     bool canMove(float newX, float newY) {
         int col = newX / CELL_SIZE;
         int row = newY / CELL_SIZE;

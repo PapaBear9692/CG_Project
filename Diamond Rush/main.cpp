@@ -5,10 +5,48 @@
 
 using namespace std;
 
-const int ROWS = 15, COLS = 15;
+
 const float CELL_SIZE = 40.0f;
+GLfloat angle = 0.0f;
+GLfloat center = 20.0f;
 
 // Maze layout (1 = wall, 0 = empty space)
+/*
+const int ROWS = 30, COLS = 30;
+int maze[ROWS][COLS] = {
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1},
+    {1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1},
+    {1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1},
+    {1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1},
+    {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1},
+    {1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1},
+    {1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1},
+    {1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1},
+    {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1},
+    {1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 1},
+    {1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1},
+    {1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1},
+    {1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1},
+    {1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+    {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+};
+*/
+
+const int ROWS = 15, COLS = 15;
 int maze[ROWS][COLS] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
     {1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1},
@@ -16,6 +54,8 @@ int maze[ROWS][COLS] = {
     {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
     {1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1},
     {1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1},
+    {1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
     {1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1},
@@ -24,6 +64,7 @@ int maze[ROWS][COLS] = {
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1}
 };
+
 
 // Wall Class
 class Wall {
@@ -41,32 +82,57 @@ public:
     }
 };
 
+
 // Fireball Class
 class Fireball {
 public:
     float x, y;
-    float speed = 5.0f;
+    float speed = 3.0f;
     bool movingUp = true;
     Fireball(float x, float y) : x(x), y(y) {}
+
+    bool canMove(float newY) {
+        int col = x / CELL_SIZE;
+        int row = newY / CELL_SIZE;
+        return maze[row][col] == 0;
+    }
+
     void move() {
-        if (movingUp) {
-            y += speed;
-            if (y >= ROWS * CELL_SIZE - CELL_SIZE) movingUp = false;
+        float newY = y + (movingUp ? speed : -speed);
+        if (canMove(newY)) {
+            y = newY;
         } else {
-            y -= speed;
-            if (y <= CELL_SIZE) movingUp = true;
+            movingUp = !movingUp;
         }
     }
+
     void draw() {
-        glColor3f(1.0f, 0.0f, 0.0f);
-        glBegin(GL_QUADS);
-        glVertex2f(x, y);
-        glVertex2f(x + CELL_SIZE / 2, y);
-        glVertex2f(x + CELL_SIZE / 2, y + CELL_SIZE / 2);
-        glVertex2f(x, y + CELL_SIZE / 2);
+        glPushMatrix();
+        glTranslatef(x+center, y, 0.0f);
+        glRotatef(angle, 0.0f, 0.0f, 1.0f);
+
+        glLineWidth(1.0f);
+        glBegin(GL_LINE_LOOP);
+            glColor3f(1.0f, 0.5f, 0.0f);
+            glVertex2f(-CELL_SIZE / 5, -CELL_SIZE / 5);
+            glVertex2f(CELL_SIZE / 5, -CELL_SIZE / 5);
+            glVertex2f(CELL_SIZE / 5, CELL_SIZE / 5);
+            glVertex2f(-CELL_SIZE / 5, CELL_SIZE / 5);
         glEnd();
+
+        glBegin(GL_QUADS);
+            glColor3f(1.0f, 0.5f, 0.0f);
+            glVertex2f(-CELL_SIZE / 6, -CELL_SIZE / 6);
+            glVertex2f(CELL_SIZE / 6, -CELL_SIZE / 6);
+            glVertex2f(CELL_SIZE / 6, CELL_SIZE / 6);
+            glVertex2f(-CELL_SIZE / 6, CELL_SIZE / 6);
+        glEnd();
+
+        glPopMatrix();
+        angle += 25.0f;
     }
 };
+
 
 // Sword Class
 class Sword {
@@ -75,27 +141,65 @@ public:
     float speed = 5.0f;
     bool movingRight = true;
     Sword(float x, float y) : x(x), y(y) {}
+
+    bool canMove(float newX) {
+        int col = newX / CELL_SIZE;
+        int row = y / CELL_SIZE;
+        return maze[row][col] == 0;
+    }
+
     void move() {
-        if (movingRight) {
-            x += speed;
-            if (x >= COLS * CELL_SIZE - CELL_SIZE) movingRight = false;
+        float newX = x + (movingRight ? speed : -speed);
+        if (canMove(newX)) {
+            x = newX;
         } else {
-            x -= speed;
-            if (x <= CELL_SIZE) movingRight = true;
+            movingRight = !movingRight;
         }
     }
+
     void draw() {
-        glColor3f(0.0f, 1.0f, 0.0f);
+        glPushMatrix();
+        glTranslatef(x, y+center, 0.0f);
+        glScalef(-1.0f, 1.0f, 1.0f); // Flip horizontally
+
+        // Draw the blade
         glBegin(GL_QUADS);
-        glVertex2f(x, y);
-        glVertex2f(x + CELL_SIZE, y);
-        glVertex2f(x + CELL_SIZE, y + CELL_SIZE / 4);
-        glVertex2f(x, y + CELL_SIZE / 4);
+        glColor3f(0.8f, 0.8f, 0.8f);
+        glVertex2f(-CELL_SIZE / 2, -CELL_SIZE / 20);
+        glVertex2f(CELL_SIZE / 2, -CELL_SIZE / 20);
+        glVertex2f(CELL_SIZE / 2, CELL_SIZE / 20);
+        glVertex2f(-CELL_SIZE / 2, CELL_SIZE / 20);
         glEnd();
+
+        // Draw the pointy tip
+        glBegin(GL_TRIANGLES);
+        glColor3f(0.8f, 0.8f, 0.8f);
+        glVertex2f(-CELL_SIZE / 2, -CELL_SIZE / 20);
+        glVertex2f(-CELL_SIZE * 0.6f, 0.0f);
+        glVertex2f(-CELL_SIZE / 2, CELL_SIZE / 20);
+        glEnd();
+
+        // Draw the hilt
+        glBegin(GL_QUADS);
+        glColor3f(0.6f, 0.3f, 0.0f);
+        glVertex2f(CELL_SIZE / 2.2f, -CELL_SIZE / 10);
+        glVertex2f(CELL_SIZE / 1.8f, -CELL_SIZE / 10);
+        glVertex2f(CELL_SIZE / 1.8f, CELL_SIZE / 10);
+        glVertex2f(CELL_SIZE / 2.2f, CELL_SIZE / 10);
+        glEnd();
+
+        // Draw the handle
+        glBegin(GL_QUADS);
+        glColor3f(0.2f, 0.2f, 0.2f);
+        glVertex2f(CELL_SIZE * 0.65f, -CELL_SIZE / 20);
+        glVertex2f(CELL_SIZE / 2.2f, -CELL_SIZE / 20);
+        glVertex2f(CELL_SIZE / 2.2f, CELL_SIZE / 20);
+        glVertex2f(CELL_SIZE * 0.65f, CELL_SIZE / 20);
+        glEnd();
+
+        glPopMatrix();
     }
 };
-
-
 
 
 // Player Class
@@ -104,14 +208,63 @@ public:
     float x, y;
     Player(float startX, float startY) : x(startX), y(startY) {}
     void draw() {
-        glColor3f(1.0f, 0.0f, 0.0f);
+        glPushMatrix();
+        glTranslatef(x+center, y+center, 0.0f);
+        glScalef(0.5f, 0.5f, 0.0f); // Increase overall size
+
+        // Draw the head
+        glColor3f(1.0f, 0.8f, 0.6f);
         glBegin(GL_QUADS);
-        glVertex2f(x, y);
-        glVertex2f(x + CELL_SIZE / 2, y);
-        glVertex2f(x + CELL_SIZE / 2, y + CELL_SIZE / 2);
-        glVertex2f(x, y + CELL_SIZE / 2);
+        glVertex2f(-CELL_SIZE / 5, CELL_SIZE / 2);
+        glVertex2f(CELL_SIZE / 5, CELL_SIZE / 2);
+        glVertex2f(CELL_SIZE / 4, CELL_SIZE / 4);
+        glVertex2f(-CELL_SIZE / 4, CELL_SIZE / 4);
         glEnd();
+
+        // Draw the body
+        glColor3f(1.0f, 0.0f, 0.0f); // Change body color to red
+        glBegin(GL_QUADS);
+        glVertex2f(-CELL_SIZE / 3, CELL_SIZE / 4);
+        glVertex2f(CELL_SIZE / 3, CELL_SIZE / 4);
+        glVertex2f(CELL_SIZE / 4, -CELL_SIZE / 3);
+        glVertex2f(-CELL_SIZE / 4, -CELL_SIZE / 3);
+        glEnd();
+
+        // Draw the legs
+        glColor3f(0.0f, 0.0f, 0.0f);
+        glBegin(GL_QUADS);
+        glVertex2f(-CELL_SIZE / 6, -CELL_SIZE / 3);
+        glVertex2f(-CELL_SIZE / 12, -CELL_SIZE / 3);
+        glVertex2f(-CELL_SIZE / 12, -CELL_SIZE / 1.8);
+        glVertex2f(-CELL_SIZE / 6, -CELL_SIZE / 1.8);
+        glEnd();
+
+        glBegin(GL_QUADS);
+        glVertex2f(CELL_SIZE / 12, -CELL_SIZE / 3);
+        glVertex2f(CELL_SIZE / 6, -CELL_SIZE / 3);
+        glVertex2f(CELL_SIZE / 6, -CELL_SIZE / 1.8);
+        glVertex2f(CELL_SIZE / 12, -CELL_SIZE / 1.8);
+        glEnd();
+
+        // Draw the arms
+        glColor3f(1.0f, 0.8f, 0.6f);
+        glBegin(GL_QUADS);
+        glVertex2f(-CELL_SIZE / 3, CELL_SIZE / 4);
+        glVertex2f(-CELL_SIZE / 2.2, CELL_SIZE / 4);
+        glVertex2f(-CELL_SIZE / 2.2, -CELL_SIZE / 8);
+        glVertex2f(-CELL_SIZE / 3, -CELL_SIZE / 8);
+        glEnd();
+
+        glBegin(GL_QUADS);
+        glVertex2f(CELL_SIZE / 3, CELL_SIZE / 4);
+        glVertex2f(CELL_SIZE / 2.2, CELL_SIZE / 4);
+        glVertex2f(CELL_SIZE / 2.2, -CELL_SIZE / 8);
+        glVertex2f(CELL_SIZE / 3, -CELL_SIZE / 8);
+        glEnd();
+
+        glPopMatrix();
     }
+
     bool canMove(float newX, float newY) {
         int col = newX / CELL_SIZE;
         int row = newY / CELL_SIZE;
@@ -125,9 +278,23 @@ public:
     }
 };
 
-std::vector<Wall> walls;
-std::vector<Fireball> fireballs = { Fireball(4 * CELL_SIZE, 2 * CELL_SIZE) };
-std::vector<Sword> swords = { Sword(6 * CELL_SIZE, 5 * CELL_SIZE) };
+vector<Wall> walls;
+vector<Fireball> fireballs = {
+    Fireball(4 * CELL_SIZE, 2 * CELL_SIZE),
+    Fireball(8 * CELL_SIZE, 3 * CELL_SIZE),
+    Fireball(12 * CELL_SIZE, 5 * CELL_SIZE),
+    Fireball(6 * CELL_SIZE, 7 * CELL_SIZE),
+    Fireball(10 * CELL_SIZE, 9 * CELL_SIZE)
+};
+vector<Sword> swords = {
+    Sword(6 * CELL_SIZE, 5 * CELL_SIZE),
+    Sword(2 * CELL_SIZE, 3 * CELL_SIZE),
+    Sword(8 * CELL_SIZE, 7 * CELL_SIZE),
+    Sword(10 * CELL_SIZE, 2 * CELL_SIZE),
+    Sword(1 * CELL_SIZE, 9 * CELL_SIZE)
+};
+
+// Initializing Player
 Player player(CELL_SIZE, CELL_SIZE);
 
 void initMaze() {

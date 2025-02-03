@@ -9,6 +9,7 @@ using namespace std;
 const float CELL_SIZE = 40.0f;
 GLfloat angle = 0.0f;
 GLfloat center = 20.0f;
+int lives = 2;
 
 // Maze layout (1 = wall, 0 = empty space)
 /*
@@ -264,7 +265,10 @@ public:
 
         glPopMatrix();
     }
-
+    void resetPlayer(){
+        x = CELL_SIZE;
+        y = CELL_SIZE;
+    }
     bool canMove(float newX, float newY) {
         int col = newX / CELL_SIZE;
         int row = newY / CELL_SIZE;
@@ -317,6 +321,14 @@ void keyboard(int key, int, int) {
     glutPostRedisplay();
 }
 
+void displayLives() {
+    glColor3f(0.0f, 0.0f, 0.0f); // Black text
+    glRasterPos2f(10, ROWS * CELL_SIZE - 20);
+    string livesText = "Lives: " + to_string(lives);
+    for (char c : livesText) {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
+    }
+}
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
@@ -324,15 +336,42 @@ void display() {
     for (auto &fireball : fireballs) fireball.draw();
     for (auto &sword : swords) sword.draw();
     player.draw();
+    displayLives();
     glutSwapBuffers();
+}
+bool checkCollision(float objX, float objY, float size = CELL_SIZE / 2) {
+    return (player.x < objX + size && player.x + CELL_SIZE > objX &&
+            player.y < objY + size && player.y + CELL_SIZE > objY);
 }
 
 void update(int value) {
-    for (auto &fireball : fireballs) fireball.move();
-    for (auto &sword : swords) sword.move();
+    for (auto &fireball : fireballs) {
+        fireball.move();
+        if (checkCollision(fireball.x, fireball.y)) {
+            lives--;
+            if (lives <= 0) {
+                cout << "Game Over! You lost all lives.\n";
+                exit(0); // Closes the game
+            }
+            player.resetPlayer();
+        }
+    }
+
+    for (auto &sword : swords) {
+        sword.move();
+        if (checkCollision(sword.x, sword.y)) {
+            lives--;
+            if (lives <= 0) {
+                cout << "Game Over! You lost all lives.\n";
+                exit(0); // Closes the game
+            }
+        }
+    }
+
     glutPostRedisplay();
     glutTimerFunc(16, update, 0);
 }
+
 
 void initOpenGL() {
     glMatrixMode(GL_PROJECTION);

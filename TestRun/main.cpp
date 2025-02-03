@@ -51,9 +51,19 @@ public:
     bool movingUp = true;
     Fireball(float x, float y) : x(x), y(y) {}
 
+    bool canMove(float newY) {
+        int col = x / CELL_SIZE;
+        int row = newY / CELL_SIZE;
+        return maze[row][col] == 0;
+    }
+
     void move() {
-        y += movingUp ? speed : -speed;
-        if (y >= ROWS * CELL_SIZE - CELL_SIZE || y <= CELL_SIZE) movingUp = !movingUp;
+        float newY = y + (movingUp ? speed : -speed);
+        if (canMove(newY)) {
+            y = newY;
+        } else {
+            movingUp = !movingUp;
+        }
     }
 
     void draw() {
@@ -92,14 +102,25 @@ public:
     bool movingRight = true;
     Sword(float x, float y) : x(x), y(y) {}
 
+    bool canMove(float newX) {
+        int col = newX / CELL_SIZE;
+        int row = y / CELL_SIZE;
+        return maze[row][col] == 0;
+    }
+
     void move() {
-        x += movingRight ? speed : -speed;
-        if (x >= COLS * CELL_SIZE - CELL_SIZE || x <= CELL_SIZE) movingRight = !movingRight;
+        float newX = x + (movingRight ? speed : -speed);
+        if (canMove(newX)) {
+            x = newX;
+        } else {
+            movingRight = !movingRight;
+        }
     }
 
     void draw() {
         glPushMatrix();
         glTranslatef(x, y, 0.0f);
+        glScalef(-1.0f, 1.0f, 1.0f); // Flip horizontally
 
         // Draw the blade
         glBegin(GL_QUADS);
@@ -113,32 +134,33 @@ public:
         // Draw the pointy tip
         glBegin(GL_TRIANGLES);
         glColor3f(0.8f, 0.8f, 0.8f);
-        glVertex2f(CELL_SIZE / 2, -CELL_SIZE / 20);
-        glVertex2f(CELL_SIZE * 0.6f, 0.0f);
-        glVertex2f(CELL_SIZE / 2, CELL_SIZE / 20);
+        glVertex2f(-CELL_SIZE / 2, -CELL_SIZE / 20);
+        glVertex2f(-CELL_SIZE * 0.6f, 0.0f);
+        glVertex2f(-CELL_SIZE / 2, CELL_SIZE / 20);
         glEnd();
 
         // Draw the hilt
         glBegin(GL_QUADS);
         glColor3f(0.6f, 0.3f, 0.0f);
-        glVertex2f(-CELL_SIZE / 2.2f, -CELL_SIZE / 10);
-        glVertex2f(-CELL_SIZE / 1.8f, -CELL_SIZE / 10);
-        glVertex2f(-CELL_SIZE / 1.8f, CELL_SIZE / 10);
-        glVertex2f(-CELL_SIZE / 2.2f, CELL_SIZE / 10);
+        glVertex2f(CELL_SIZE / 2.2f, -CELL_SIZE / 10);
+        glVertex2f(CELL_SIZE / 1.8f, -CELL_SIZE / 10);
+        glVertex2f(CELL_SIZE / 1.8f, CELL_SIZE / 10);
+        glVertex2f(CELL_SIZE / 2.2f, CELL_SIZE / 10);
         glEnd();
 
         // Draw the handle
         glBegin(GL_QUADS);
         glColor3f(0.2f, 0.2f, 0.2f);
-        glVertex2f(-CELL_SIZE * 0.65f, -CELL_SIZE / 20);
-        glVertex2f(-CELL_SIZE / 2.2f, -CELL_SIZE / 20);
-        glVertex2f(-CELL_SIZE / 2.2f, CELL_SIZE / 20);
-        glVertex2f(-CELL_SIZE * 0.65f, CELL_SIZE / 20);
+        glVertex2f(CELL_SIZE * 0.65f, -CELL_SIZE / 20);
+        glVertex2f(CELL_SIZE / 2.2f, -CELL_SIZE / 20);
+        glVertex2f(CELL_SIZE / 2.2f, CELL_SIZE / 20);
+        glVertex2f(CELL_SIZE * 0.65f, CELL_SIZE / 20);
         glEnd();
 
         glPopMatrix();
     }
 };
+
 
 
 

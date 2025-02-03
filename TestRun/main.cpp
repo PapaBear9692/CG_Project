@@ -202,9 +202,6 @@ public:
 };
 
 
-
-
-
 // Player Class
 class Player {
 public:
@@ -281,9 +278,23 @@ public:
     }
 };
 
-std::vector<Wall> walls;
-std::vector<Fireball> fireballs = { Fireball(4 * CELL_SIZE, 2 * CELL_SIZE) };
-std::vector<Sword> swords = { Sword(6 * CELL_SIZE, 5 * CELL_SIZE) };
+vector<Wall> walls;
+vector<Fireball> fireballs = {
+    Fireball(4 * CELL_SIZE, 2 * CELL_SIZE),
+    Fireball(8 * CELL_SIZE, 3 * CELL_SIZE),
+    Fireball(12 * CELL_SIZE, 5 * CELL_SIZE),
+    Fireball(6 * CELL_SIZE, 7 * CELL_SIZE),
+    Fireball(10 * CELL_SIZE, 9 * CELL_SIZE)
+};
+vector<Sword> swords = {
+    Sword(6 * CELL_SIZE, 5 * CELL_SIZE),
+    Sword(2 * CELL_SIZE, 3 * CELL_SIZE),
+    Sword(8 * CELL_SIZE, 7 * CELL_SIZE),
+    Sword(10 * CELL_SIZE, 2 * CELL_SIZE),
+    Sword(1 * CELL_SIZE, 9 * CELL_SIZE)
+};
+
+// Initializing Player
 Player player(CELL_SIZE, CELL_SIZE);
 
 void initMaze() {

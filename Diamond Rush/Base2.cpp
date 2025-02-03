@@ -1,18 +1,14 @@
 #include <windows.h>
 #include <GL/glut.h>
 #include <vector>
-#include <cmath>
 #include <iostream>
 
 using namespace std;
 
 
-const float CELL_SIZE = 50.0f;
+const float CELL_SIZE = 40.0f;
 GLfloat angle = 0.0f;
-GLfloat center = 25.0f;
-int lives = 3;
-int score = 0; // Player's score
-
+GLfloat center = 20.0f;
 
 // Maze layout (1 = wall, 0 = empty space)
 /*
@@ -53,15 +49,15 @@ int maze[ROWS][COLS] = {
 const int ROWS = 15, COLS = 15;
 int maze[ROWS][COLS] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0},
+    {1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1},
     {1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
     {1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1},
     {1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1},
     {1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1},
-    {1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
     {1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1},
     {1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1},
     {1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1},
@@ -76,25 +72,13 @@ public:
     float x, y;
     Wall(float x, float y) : x(x), y(y) {}
     void draw() {
-        glColor3f(0.6f, 0.6f, 0.6f);
+        glColor3f(0.0f, 0.0f, 1.0f);
         glBegin(GL_QUADS);
         glVertex2f(x, y);
         glVertex2f(x + CELL_SIZE, y);
         glVertex2f(x + CELL_SIZE, y + CELL_SIZE);
         glVertex2f(x, y + CELL_SIZE);
         glEnd();
-
-        glColor3f(0.3f, 0.3f, 0.3f);
-        glBegin(GL_LINES);
-        glVertex2f(x, y);
-        glVertex2f(x + CELL_SIZE, y + CELL_SIZE);
-        glEnd();
-
-        glBegin(GL_LINES);
-        glVertex2f(x + CELL_SIZE, y);
-        glVertex2f(x, y + CELL_SIZE);
-        glEnd();
-
     }
 };
 
@@ -103,7 +87,7 @@ public:
 class Fireball {
 public:
     float x, y;
-    float speed = 5.0f;
+    float speed = 3.0f;
     bool movingUp = true;
     Fireball(float x, float y) : x(x), y(y) {}
 
@@ -145,7 +129,7 @@ public:
         glEnd();
 
         glPopMatrix();
-        angle += 45.0f;
+        angle += 25.0f;
     }
 };
 
@@ -176,6 +160,7 @@ public:
     void draw() {
         glPushMatrix();
         glTranslatef(x, y+center, 0.0f);
+        glScalef(-1.0f, 1.0f, 1.0f); // Flip horizontally
 
         // Draw the blade
         glBegin(GL_QUADS);
@@ -213,114 +198,6 @@ public:
         glEnd();
 
         glPopMatrix();
-    }
-};
-// Function to draw a circle manually (border of the coin)
-void drawCircle(GLfloat radius, int segments) {
-    glBegin(GL_LINE_LOOP); // Create a loop of lines for the circle
-    for (int i = 0; i < segments; ++i) {
-        GLfloat theta = (2.0f * 3.14159265359f * i) / segments; // Angle for each segment
-        GLfloat x = radius * cos(theta); // X coordinate
-        GLfloat y = radius * sin(theta); // Y coordinate
-        glVertex2f(x, y); // Set the vertex
-    }
-    glEnd();
-}
-
-// Function to draw a filled circle (main body of the coin)
-void drawFilledCircle(GLfloat radius, int segments) {
-    glBegin(GL_POLYGON); // Create a filled circle
-    for (int i = 0; i < segments; ++i) {
-        GLfloat theta = (2.0f * 3.14159265359f * i) / segments; // Angle for each segment
-        GLfloat x = radius * cos(theta); // X coordinate
-        GLfloat y = radius * sin(theta); // Y coordinate
-        glVertex2f(x, y); // Set the vertex
-    }
-    glEnd();
-}
-
-// Coin Class
-class Coin {
-public:
-    float x, y;
-    bool collected;
-
-    Coin(float x, float y) : x(x), y(y), collected(false) {}
-
-    void draw() {
-        if (collected) return; // Don't draw if already collected
-
-        glPushMatrix();
-        glTranslatef(x + center, y + center, 0.0f);
-        //glRotatef(coinAngle, 0.0f, 1.0f, 0.0f);
-
-        // Draw the black border
-        glColor3f(0.0f, 0.0f, 0.0f);
-        drawCircle(CELL_SIZE / 5.5f, 50); // Fixed segment value
-
-        // Draw the gold coin
-        glColor3f(1.0f, 0.84f, 0.0f);
-        drawFilledCircle(CELL_SIZE / 6.2f, 50); // Fixed segment value
-
-        // Draw the inner circle
-        glColor3f(0.8f, 0.6f, 0.0f);
-        glPushMatrix();
-        glTranslatef(0.0f, 0.0f, 0.01f);
-        drawFilledCircle(CELL_SIZE / 6, 50); // Fixed segment value
-        glPopMatrix();
-
-        glPopMatrix(); // Restore transformation
-    }
-
-    bool isCollected() {
-        return collected;
-    }
-
-    void collect() {
-        collected = true;
-        score += 10; // Increase score by 10
-        cout << "Score: " << score << endl;
-    }
-};
-
-//Diamond Class
-class Diamond {
-public:
-    float x, y;
-    bool collected;
-
-    Diamond(float x, float y) : x(x), y(y), collected(false) {}
-
-    void draw() {
-        if (collected) return;
-
-        glPushMatrix();
-        glTranslatef(x + CELL_SIZE / 2, y + CELL_SIZE / 2, 0.0f);
-        //glRotatef(angle, 0.0f, 1.0f, 0.0f);
-
-        glColor3f(1.0f, 0.0f, 0.0f);
-        glScalef(CELL_SIZE / 1.8f, CELL_SIZE / 1.8f, 1.0f);
-
-        glBegin(GL_POLYGON); // Begin drawing a polygon (diamond shape)
-        glVertex2f(0.5f, 0.5f);  // Top vertex
-        glVertex2f(-0.5f, 0.5f);
-        glVertex2f(-0.6f, 0.2f);
-        glVertex2f(0.0f, -0.4f);  // Right vertex
-        glVertex2f(0.6f, 0.2f); // Bottom vertex
-        glVertex2f(0.5f, 0.5f); // Left vertex
-        glEnd();
-
-        glPopMatrix(); // Restore transformation
-    }
-
-    bool isCollected() {
-        return collected;
-    }
-
-    void collect() {
-        collected = true;
-        score += 100; // Increase score by 100
-        cout << "Score: " << score << endl;
     }
 };
 
@@ -387,10 +264,7 @@ public:
 
         glPopMatrix();
     }
-    void resetPlayer(){
-        x = CELL_SIZE;
-        y = CELL_SIZE;
-    }
+
     bool canMove(float newX, float newY) {
         int col = newX / CELL_SIZE;
         int row = newY / CELL_SIZE;
@@ -409,32 +283,16 @@ vector<Fireball> fireballs = {
     Fireball(4 * CELL_SIZE, 2 * CELL_SIZE),
     Fireball(8 * CELL_SIZE, 3 * CELL_SIZE),
     Fireball(12 * CELL_SIZE, 5 * CELL_SIZE),
-    Fireball(4 * CELL_SIZE, 6 * CELL_SIZE),
-    Fireball(6 * CELL_SIZE, 9 * CELL_SIZE),
-    Fireball(10 * CELL_SIZE, 9 * CELL_SIZE),
-    Fireball(13 * CELL_SIZE, 3 * CELL_SIZE)
+    Fireball(6 * CELL_SIZE, 7 * CELL_SIZE),
+    Fireball(10 * CELL_SIZE, 9 * CELL_SIZE)
 };
 vector<Sword> swords = {
     Sword(6 * CELL_SIZE, 5 * CELL_SIZE),
     Sword(2 * CELL_SIZE, 3 * CELL_SIZE),
     Sword(8 * CELL_SIZE, 7 * CELL_SIZE),
     Sword(10 * CELL_SIZE, 2 * CELL_SIZE),
-    Sword(1 * CELL_SIZE, 9 * CELL_SIZE),
-    Sword(10 * CELL_SIZE, 9 * CELL_SIZE)
+    Sword(1 * CELL_SIZE, 9 * CELL_SIZE)
 };
-
-vector<Coin> coins = {
-    Coin(2 * CELL_SIZE, 3 * CELL_SIZE),
-    Coin(6 * CELL_SIZE, 7 * CELL_SIZE),
-    Coin(8 * CELL_SIZE, 8 * CELL_SIZE),
-    Coin(10 * CELL_SIZE, 3 * CELL_SIZE),
-    Coin(12 * CELL_SIZE, 9 * CELL_SIZE)
-};
-
-vector<Diamond> diamonds = {
-    Diamond(13 * CELL_SIZE, 14 * CELL_SIZE)
-};
-
 
 // Initializing Player
 Player player(CELL_SIZE, CELL_SIZE);
@@ -459,82 +317,22 @@ void keyboard(int key, int, int) {
     glutPostRedisplay();
 }
 
-void displayLives() {
-    glColor3f(0.0f, 0.0f, 0.0f); // Black text
-    glRasterPos2f(10, ROWS * CELL_SIZE - 20);
-    string livesText = "Lives: " + to_string(lives);
-    for (char c : livesText) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
-    }
-}
-
-void displayScore() {
-    glColor3f(0.0f, 0.0f, 0.0f);
-    glRasterPos2f(10, ROWS * CELL_SIZE - 40);
-    string scoreText = "Score: " + to_string(score);
-    for (char c : scoreText) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
-    }
-}
-
-bool checkCollision(float objX, float objY, float size = center) {
-    return (player.x < objX + size && player.x + CELL_SIZE > objX &&
-            player.y < objY + size && player.y + CELL_SIZE > objY);
-}
-
-void update(int value) {
-    for (auto &fireball : fireballs) {
-        fireball.move();
-        if (checkCollision(fireball.x, fireball.y)) {
-            lives--;
-            if (lives <= 0) {
-                cout << "Game Over! You lost all lives.\n";
-                exit(0);
-            }
-            player.resetPlayer();
-        }
-    }
-
-    for (auto &sword : swords) {
-        sword.move();
-        if (checkCollision(sword.x, sword.y)) {
-            lives--;
-            if (lives <= 0) {
-                cout << "Game Over! You lost all lives.\n";
-                exit(0);
-            }
-        }
-    }
-
-    for (auto &coin : coins) {
-        if (!coin.isCollected() && checkCollision(coin.x, coin.y)) {
-            coin.collect();
-        }
-    }
-
-    for (auto &diamond : diamonds) {
-        if (!diamond.isCollected() && checkCollision(diamond.x, diamond.y)) {
-            diamond.collect();
-        }
-    }
-
-    glutPostRedisplay();
-    glutTimerFunc(16, update, 0);
-}
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
     for (auto &wall : walls) wall.draw();
     for (auto &fireball : fireballs) fireball.draw();
     for (auto &sword : swords) sword.draw();
-    for (auto &coin : coins) coin.draw();
-    for (auto &diamond : diamonds) diamond.draw();
     player.draw();
-    displayLives();
-    displayScore();
     glutSwapBuffers();
 }
 
+void update(int value) {
+    for (auto &fireball : fireballs) fireball.move();
+    for (auto &sword : swords) sword.move();
+    glutPostRedisplay();
+    glutTimerFunc(16, update, 0);
+}
 
 void initOpenGL() {
     glMatrixMode(GL_PROJECTION);

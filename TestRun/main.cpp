@@ -11,7 +11,9 @@ const float CELL_SIZE = 50.0f;
 GLfloat angle = 0.0f;
 GLfloat center = 25.0f;
 int lives = 3;
-int score = 0; // Player's score
+int score = 0;
+const float EXIT_X = 13 * CELL_SIZE;
+const float EXIT_Y = 15 * CELL_SIZE;
 
 
 // Maze layout (1 = wall, 0 = empty space)
@@ -410,7 +412,7 @@ vector<Fireball> fireballs = {
     Fireball(8 * CELL_SIZE, 3 * CELL_SIZE),
     Fireball(12 * CELL_SIZE, 5 * CELL_SIZE),
     Fireball(4 * CELL_SIZE, 6 * CELL_SIZE),
-    Fireball(6 * CELL_SIZE, 9 * CELL_SIZE),
+    Fireball(4 * CELL_SIZE, 12 * CELL_SIZE),
     Fireball(10 * CELL_SIZE, 9 * CELL_SIZE),
     Fireball(13 * CELL_SIZE, 3 * CELL_SIZE)
 };
@@ -432,7 +434,7 @@ vector<Coin> coins = {
 };
 
 vector<Diamond> diamonds = {
-    Diamond(13 * CELL_SIZE, 14 * CELL_SIZE)
+    Diamond(1 * CELL_SIZE, 12 * CELL_SIZE)
 };
 
 
@@ -468,6 +470,20 @@ void displayLives() {
     }
 }
 
+void checkLevelCompletion() {
+    if (score >= 110 && player.x == EXIT_X && player.y == EXIT_Y) {
+        MessageBox(NULL,
+        "Congratulations!\n\n"
+        "You have successfully completed this level.\n"
+        "Click OK to Continue.",
+        "Level Completed",
+        MB_OK | MB_ICONASTERISK);
+
+        Sleep(3000); // Pause for 3 seconds (Windows only)
+        exit(0); // Close the game
+    }
+}
+
 void displayScore() {
     glColor3f(0.0f, 0.0f, 0.0f);
     glRasterPos2f(10, ROWS * CELL_SIZE - 40);
@@ -486,18 +502,20 @@ void update(int value) {
     for (auto &fireball : fireballs) {
         fireball.move();
         if (checkCollision(fireball.x, fireball.y)) {
+            player.resetPlayer();
             lives--;
             if (lives <= 0) {
                 cout << "Game Over! You lost all lives.\n";
                 exit(0);
             }
-            player.resetPlayer();
+
         }
     }
 
     for (auto &sword : swords) {
         sword.move();
         if (checkCollision(sword.x, sword.y)) {
+            player.resetPlayer();
             lives--;
             if (lives <= 0) {
                 cout << "Game Over! You lost all lives.\n";
@@ -517,6 +535,8 @@ void update(int value) {
             diamond.collect();
         }
     }
+
+    checkLevelCompletion();
 
     glutPostRedisplay();
     glutTimerFunc(16, update, 0);

@@ -9,7 +9,7 @@ using namespace std;
 const float CELL_SIZE = 40.0f;
 GLfloat angle = 0.0f;
 GLfloat center = 20.0f;
-int lives = 2;
+int lives = 3;
 
 // Maze layout (1 = wall, 0 = empty space)
 /*
@@ -50,14 +50,14 @@ int maze[ROWS][COLS] = {
 const int ROWS = 15, COLS = 15;
 int maze[ROWS][COLS] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-    {1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0},
     {1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
     {1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1},
     {1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1},
     {1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
-    {1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1},
+    {1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1},
     {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
     {1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1},
     {1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1},
@@ -73,13 +73,25 @@ public:
     float x, y;
     Wall(float x, float y) : x(x), y(y) {}
     void draw() {
-        glColor3f(0.0f, 0.0f, 1.0f);
+        glColor3f(0.6f, 0.6f, 0.6f);
         glBegin(GL_QUADS);
         glVertex2f(x, y);
         glVertex2f(x + CELL_SIZE, y);
         glVertex2f(x + CELL_SIZE, y + CELL_SIZE);
         glVertex2f(x, y + CELL_SIZE);
         glEnd();
+
+        glColor3f(0.3f, 0.3f, 0.3f);
+        glBegin(GL_LINES);
+        glVertex2f(x, y);
+        glVertex2f(x + CELL_SIZE, y + CELL_SIZE);
+        glEnd();
+
+        glBegin(GL_LINES);
+        glVertex2f(x + CELL_SIZE, y);
+        glVertex2f(x, y + CELL_SIZE);
+        glEnd();
+
     }
 };
 
@@ -288,7 +300,8 @@ vector<Fireball> fireballs = {
     Fireball(8 * CELL_SIZE, 3 * CELL_SIZE),
     Fireball(12 * CELL_SIZE, 5 * CELL_SIZE),
     Fireball(6 * CELL_SIZE, 7 * CELL_SIZE),
-    Fireball(10 * CELL_SIZE, 9 * CELL_SIZE)
+    Fireball(10 * CELL_SIZE, 9 * CELL_SIZE),
+    Fireball(13 * CELL_SIZE, 3 * CELL_SIZE)
 };
 vector<Sword> swords = {
     Sword(6 * CELL_SIZE, 5 * CELL_SIZE),

@@ -91,23 +91,52 @@ public:
     float speed = 5.0f;
     bool movingRight = true;
     Sword(float x, float y) : x(x), y(y) {}
+
     void move() {
-        if (movingRight) {
-            x += speed;
-            if (x >= COLS * CELL_SIZE - CELL_SIZE) movingRight = false;
-        } else {
-            x -= speed;
-            if (x <= CELL_SIZE) movingRight = true;
-        }
+        x += movingRight ? speed : -speed;
+        if (x >= COLS * CELL_SIZE - CELL_SIZE || x <= CELL_SIZE) movingRight = !movingRight;
     }
+
     void draw() {
-        glColor3f(0.0f, 1.0f, 0.0f);
+        glPushMatrix();
+        glTranslatef(x, y, 0.0f);
+
+        // Draw the blade
         glBegin(GL_QUADS);
-        glVertex2f(x, y);
-        glVertex2f(x + CELL_SIZE, y);
-        glVertex2f(x + CELL_SIZE, y + CELL_SIZE / 4);
-        glVertex2f(x, y + CELL_SIZE / 4);
+        glColor3f(0.8f, 0.8f, 0.8f);
+        glVertex2f(-CELL_SIZE / 2, -CELL_SIZE / 20);
+        glVertex2f(CELL_SIZE / 2, -CELL_SIZE / 20);
+        glVertex2f(CELL_SIZE / 2, CELL_SIZE / 20);
+        glVertex2f(-CELL_SIZE / 2, CELL_SIZE / 20);
         glEnd();
+
+        // Draw the pointy tip
+        glBegin(GL_TRIANGLES);
+        glColor3f(0.8f, 0.8f, 0.8f);
+        glVertex2f(CELL_SIZE / 2, -CELL_SIZE / 20);
+        glVertex2f(CELL_SIZE * 0.6f, 0.0f);
+        glVertex2f(CELL_SIZE / 2, CELL_SIZE / 20);
+        glEnd();
+
+        // Draw the hilt
+        glBegin(GL_QUADS);
+        glColor3f(0.6f, 0.3f, 0.0f);
+        glVertex2f(-CELL_SIZE / 2.2f, -CELL_SIZE / 10);
+        glVertex2f(-CELL_SIZE / 1.8f, -CELL_SIZE / 10);
+        glVertex2f(-CELL_SIZE / 1.8f, CELL_SIZE / 10);
+        glVertex2f(-CELL_SIZE / 2.2f, CELL_SIZE / 10);
+        glEnd();
+
+        // Draw the handle
+        glBegin(GL_QUADS);
+        glColor3f(0.2f, 0.2f, 0.2f);
+        glVertex2f(-CELL_SIZE * 0.65f, -CELL_SIZE / 20);
+        glVertex2f(-CELL_SIZE / 2.2f, -CELL_SIZE / 20);
+        glVertex2f(-CELL_SIZE / 2.2f, CELL_SIZE / 20);
+        glVertex2f(-CELL_SIZE * 0.65f, CELL_SIZE / 20);
+        glEnd();
+
+        glPopMatrix();
     }
 };
 

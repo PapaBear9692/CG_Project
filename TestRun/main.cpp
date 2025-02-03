@@ -12,7 +12,6 @@ GLfloat angle = 0.0f;
 GLfloat center = 25.0f;
 int lives = 3;
 int score = 0; // Player's score
-GLfloat coinAngle = 0.0f; // Rotation angle for coins
 
 
 // Maze layout (1 = wall, 0 = empty space)
@@ -104,7 +103,7 @@ public:
 class Fireball {
 public:
     float x, y;
-    float speed = 3.0f;
+    float speed = 5.0f;
     bool movingUp = true;
     Fireball(float x, float y) : x(x), y(y) {}
 
@@ -146,7 +145,7 @@ public:
         glEnd();
 
         glPopMatrix();
-        angle += 25.0f;
+        angle += 45.0f;
     }
 };
 
@@ -284,6 +283,47 @@ public:
     }
 };
 
+//Diamond Class
+class Diamond {
+public:
+    float x, y;
+    bool collected;
+
+    Diamond(float x, float y) : x(x), y(y), collected(false) {}
+
+    void draw() {
+        if (collected) return;
+
+        glPushMatrix();
+        glTranslatef(x + CELL_SIZE / 2, y + CELL_SIZE / 2, 0.0f);
+        //glRotatef(angle, 0.0f, 1.0f, 0.0f);
+
+        glColor3f(1.0f, 0.0f, 0.0f);
+        glScalef(CELL_SIZE / 1.8f, CELL_SIZE / 1.8f, 1.0f);
+
+        glBegin(GL_POLYGON); // Begin drawing a polygon (diamond shape)
+        glVertex2f(0.5f, 0.5f);  // Top vertex
+        glVertex2f(-0.5f, 0.5f);
+        glVertex2f(-0.6f, 0.2f);
+        glVertex2f(0.0f, -0.4f);  // Right vertex
+        glVertex2f(0.6f, 0.2f); // Bottom vertex
+        glVertex2f(0.5f, 0.5f); // Left vertex
+        glEnd();
+
+        glPopMatrix(); // Restore transformation
+    }
+
+    bool isCollected() {
+        return collected;
+    }
+
+    void collect() {
+        collected = true;
+        score += 100; // Increase score by 100
+        cout << "Score: " << score << endl;
+    }
+};
+
 
 // Player Class
 class Player {
@@ -369,7 +409,8 @@ vector<Fireball> fireballs = {
     Fireball(4 * CELL_SIZE, 2 * CELL_SIZE),
     Fireball(8 * CELL_SIZE, 3 * CELL_SIZE),
     Fireball(12 * CELL_SIZE, 5 * CELL_SIZE),
-    Fireball(6 * CELL_SIZE, 7 * CELL_SIZE),
+    Fireball(4 * CELL_SIZE, 6 * CELL_SIZE),
+    Fireball(6 * CELL_SIZE, 9 * CELL_SIZE),
     Fireball(10 * CELL_SIZE, 9 * CELL_SIZE),
     Fireball(13 * CELL_SIZE, 3 * CELL_SIZE)
 };
@@ -384,10 +425,14 @@ vector<Sword> swords = {
 
 vector<Coin> coins = {
     Coin(2 * CELL_SIZE, 3 * CELL_SIZE),
-    Coin(6 * CELL_SIZE, 5 * CELL_SIZE),
-    Coin(8 * CELL_SIZE, 7 * CELL_SIZE),
+    Coin(6 * CELL_SIZE, 7 * CELL_SIZE),
+    Coin(8 * CELL_SIZE, 8 * CELL_SIZE),
     Coin(10 * CELL_SIZE, 3 * CELL_SIZE),
     Coin(12 * CELL_SIZE, 9 * CELL_SIZE)
+};
+
+vector<Diamond> diamonds = {
+    Diamond(13 * CELL_SIZE, 14 * CELL_SIZE)
 };
 
 
@@ -467,7 +512,12 @@ void update(int value) {
         }
     }
 
-    coinAngle += 2.0f; // Rotate the coin
+    for (auto &diamond : diamonds) {
+        if (!diamond.isCollected() && checkCollision(diamond.x, diamond.y)) {
+            diamond.collect();
+        }
+    }
+
     glutPostRedisplay();
     glutTimerFunc(16, update, 0);
 }
@@ -478,6 +528,7 @@ void display() {
     for (auto &fireball : fireballs) fireball.draw();
     for (auto &sword : swords) sword.draw();
     for (auto &coin : coins) coin.draw();
+    for (auto &diamond : diamonds) diamond.draw();
     player.draw();
     displayLives();
     displayScore();

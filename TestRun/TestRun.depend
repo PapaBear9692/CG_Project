@@ -1,8 +1,9 @@
 # depslib dependency file v1.0
-1738600039 source:d:\8th semester\computer graphics\project\testrun\main.cpp
+1738605775 source:d:\8th semester\computer graphics\project\testrun\main.cpp
 	<windows.h>
 	<GL/glut.h>
 	<vector>
+	<cmath>
 	<iostream>
 
 1301111162 c:\program files (x86)\codeblocks\mingw\include\windows.h

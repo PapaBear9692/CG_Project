@@ -1,15 +1,19 @@
 #include <windows.h>
 #include <GL/glut.h>
 #include <vector>
+#include <cmath>
 #include <iostream>
 
 using namespace std;
 
 
-const float CELL_SIZE = 40.0f;
+const float CELL_SIZE = 50.0f;
 GLfloat angle = 0.0f;
-GLfloat center = 20.0f;
+GLfloat center = 25.0f;
 int lives = 3;
+int score = 0; // Player's score
+GLfloat coinAngle = 0.0f; // Rotation angle for coins
+
 
 // Maze layout (1 = wall, 0 = empty space)
 /*
@@ -58,7 +62,7 @@ int maze[ROWS][COLS] = {
     {1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1},
     {1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
     {1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1},
-    {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1},
+    {1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1},
     {1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1},
     {1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1},
     {1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1},
@@ -173,7 +177,6 @@ public:
     void draw() {
         glPushMatrix();
         glTranslatef(x, y+center, 0.0f);
-        glScalef(-1.0f, 1.0f, 1.0f); // Flip horizontally
 
         // Draw the blade
         glBegin(GL_QUADS);
@@ -211,6 +214,73 @@ public:
         glEnd();
 
         glPopMatrix();
+    }
+};
+// Function to draw a circle manually (border of the coin)
+void drawCircle(GLfloat radius, int segments) {
+    glBegin(GL_LINE_LOOP); // Create a loop of lines for the circle
+    for (int i = 0; i < segments; ++i) {
+        GLfloat theta = (2.0f * 3.14159265359f * i) / segments; // Angle for each segment
+        GLfloat x = radius * cos(theta); // X coordinate
+        GLfloat y = radius * sin(theta); // Y coordinate
+        glVertex2f(x, y); // Set the vertex
+    }
+    glEnd();
+}
+
+// Function to draw a filled circle (main body of the coin)
+void drawFilledCircle(GLfloat radius, int segments) {
+    glBegin(GL_POLYGON); // Create a filled circle
+    for (int i = 0; i < segments; ++i) {
+        GLfloat theta = (2.0f * 3.14159265359f * i) / segments; // Angle for each segment
+        GLfloat x = radius * cos(theta); // X coordinate
+        GLfloat y = radius * sin(theta); // Y coordinate
+        glVertex2f(x, y); // Set the vertex
+    }
+    glEnd();
+}
+
+// Coin Class
+class Coin {
+public:
+    float x, y;
+    bool collected;
+
+    Coin(float x, float y) : x(x), y(y), collected(false) {}
+
+    void draw() {
+        if (collected) return; // Don't draw if already collected
+
+        glPushMatrix();
+        glTranslatef(x + center, y + center, 0.0f);
+        //glRotatef(coinAngle, 0.0f, 1.0f, 0.0f);
+
+        // Draw the black border
+        glColor3f(0.0f, 0.0f, 0.0f);
+        drawCircle(CELL_SIZE / 5.5f, 50); // Fixed segment value
+
+        // Draw the gold coin
+        glColor3f(1.0f, 0.84f, 0.0f);
+        drawFilledCircle(CELL_SIZE / 6.2f, 50); // Fixed segment value
+
+        // Draw the inner circle
+        glColor3f(0.8f, 0.6f, 0.0f);
+        glPushMatrix();
+        glTranslatef(0.0f, 0.0f, 0.01f);
+        drawFilledCircle(CELL_SIZE / 6, 50); // Fixed segment value
+        glPopMatrix();
+
+        glPopMatrix(); // Restore transformation
+    }
+
+    bool isCollected() {
+        return collected;
+    }
+
+    void collect() {
+        collected = true;
+        score += 10; // Increase score by 10
+        cout << "Score: " << score << endl;
     }
 };
 
@@ -308,8 +378,18 @@ vector<Sword> swords = {
     Sword(2 * CELL_SIZE, 3 * CELL_SIZE),
     Sword(8 * CELL_SIZE, 7 * CELL_SIZE),
     Sword(10 * CELL_SIZE, 2 * CELL_SIZE),
-    Sword(1 * CELL_SIZE, 9 * CELL_SIZE)
+    Sword(1 * CELL_SIZE, 9 * CELL_SIZE),
+    Sword(10 * CELL_SIZE, 9 * CELL_SIZE)
 };
+
+vector<Coin> coins = {
+    Coin(2 * CELL_SIZE, 3 * CELL_SIZE),
+    Coin(6 * CELL_SIZE, 5 * CELL_SIZE),
+    Coin(8 * CELL_SIZE, 7 * CELL_SIZE),
+    Coin(10 * CELL_SIZE, 3 * CELL_SIZE),
+    Coin(12 * CELL_SIZE, 9 * CELL_SIZE)
+};
+
 
 // Initializing Player
 Player player(CELL_SIZE, CELL_SIZE);
@@ -343,16 +423,16 @@ void displayLives() {
     }
 }
 
-void display() {
-    glClear(GL_COLOR_BUFFER_BIT);
-    for (auto &wall : walls) wall.draw();
-    for (auto &fireball : fireballs) fireball.draw();
-    for (auto &sword : swords) sword.draw();
-    player.draw();
-    displayLives();
-    glutSwapBuffers();
+void displayScore() {
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glRasterPos2f(10, ROWS * CELL_SIZE - 40);
+    string scoreText = "Score: " + to_string(score);
+    for (char c : scoreText) {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, c);
+    }
 }
-bool checkCollision(float objX, float objY, float size = CELL_SIZE / 2) {
+
+bool checkCollision(float objX, float objY, float size = center) {
     return (player.x < objX + size && player.x + CELL_SIZE > objX &&
             player.y < objY + size && player.y + CELL_SIZE > objY);
 }
@@ -364,7 +444,7 @@ void update(int value) {
             lives--;
             if (lives <= 0) {
                 cout << "Game Over! You lost all lives.\n";
-                exit(0); // Closes the game
+                exit(0);
             }
             player.resetPlayer();
         }
@@ -376,13 +456,32 @@ void update(int value) {
             lives--;
             if (lives <= 0) {
                 cout << "Game Over! You lost all lives.\n";
-                exit(0); // Closes the game
+                exit(0);
             }
         }
     }
 
+    for (auto &coin : coins) {
+        if (!coin.isCollected() && checkCollision(coin.x, coin.y)) {
+            coin.collect();
+        }
+    }
+
+    coinAngle += 2.0f; // Rotate the coin
     glutPostRedisplay();
     glutTimerFunc(16, update, 0);
+}
+
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT);
+    for (auto &wall : walls) wall.draw();
+    for (auto &fireball : fireballs) fireball.draw();
+    for (auto &sword : swords) sword.draw();
+    for (auto &coin : coins) coin.draw();
+    player.draw();
+    displayLives();
+    displayScore();
+    glutSwapBuffers();
 }
 
 
